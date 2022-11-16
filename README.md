@@ -17,4 +17,4 @@ iex> Identicon.main("foobar")
       :ok
 
 
-> <img src=".obar.png" alt="foobar`" width="250"/>
+> <img src="./example/foobar.png" alt="foobar`" width="250"/>
