@@ -9,3 +9,6 @@ erl_crash.dump
 /config/*.secret.exs
 .elixir_ls/
 *.png
+identicon-*.tar
+/tmp/
+*.png
