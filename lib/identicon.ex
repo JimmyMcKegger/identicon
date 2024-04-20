@@ -4,9 +4,9 @@ defmodule Identicon do
   """
 
   @doc """
- make/1
+  make/1
 
- Takes a name and outputs a 250 x 250 px png image.
+  Takes a name and outputs a 250 x 250 px png image.
 
   ## Examples
 
@@ -29,50 +29,54 @@ defmodule Identicon do
     image = :egd.create(250, 250)
     fill = :egd.color(color)
 
-    Enum.each pixel_map, fn({start, stop}) ->
+    Enum.each(pixel_map, fn {start, stop} ->
       :egd.filledRectangle(image, start, stop, fill)
-    end
+    end)
 
     :egd.render(image)
   end
 
   def build_pixel_map(%Identicon.Image{grid: grid} = image) do
     # image refers to the struct being passed in so it can be re-assigned at the end
-  	pixel_map = Enum.map grid, fn({ _code, index }) ->
-  		horizontal = rem(index, 5) * 50
-  		vertical = div(index, 5) * 50
-  		top_left = { horizontal, vertical }
-  		bottom_right = { horizontal + 50, vertical + 50 }
+    pixel_map =
+      Enum.map(grid, fn {_code, index} ->
+        horizontal = rem(index, 5) * 50
+        vertical = div(index, 5) * 50
+        top_left = {horizontal, vertical}
+        bottom_right = {horizontal + 50, vertical + 50}
 
-  		{ top_left, bottom_right }
-  	end
+        {top_left, bottom_right}
+      end)
 
-  	%Identicon.Image{image | pixel_map: pixel_map}
+    %Identicon.Image{image | pixel_map: pixel_map}
   end
 
   def filter_odd_squares(%Identicon.Image{grid: grid} = image) do
-  	grid = Enum.filter grid, fn({ code, _index }) ->
-  		rem(code, 2) == 0
-  	end
+    grid =
+      Enum.filter(grid, fn {code, _index} ->
+        rem(code, 2) == 0
+      end)
 
-  	%Identicon.Image{image | grid: grid}
+    %Identicon.Image{image | grid: grid}
   end
 
   def build_grid(%Identicon.Image{hex: hex} = image) do
-    grid = 
+    grid =
       hex
       |> Enum.chunk_every(3, 3, :discard)
       |> Enum.map(&mirror_row/1)
-      |> List.flatten
-      |> Enum.with_index
+      |> List.flatten()
+      |> Enum.with_index()
 
-    %Identicon.Image{ image | grid: grid }
+    %Identicon.Image{image | grid: grid}
   end
 
   def hash_input(input) do
-  	hex = :crypto.hash(:md5, input)
-  	|> :binary.bin_to_list
-  	%Identicon.Image{hex: hex}
+    hex =
+      :crypto.hash(:md5, input)
+      |> :binary.bin_to_list()
+
+    %Identicon.Image{hex: hex}
   end
 
   def pick_color(%Identicon.Image{hex: [r, g, b | _tail]} = image) do
@@ -80,11 +84,12 @@ defmodule Identicon do
   end
 
   def mirror_row(row) do
-  	[a, b, c] = row
-  	row = [a, b, c, b, a]
+    [a, b, c] = row
+
+    [a, b, c, b, a]
   end
 
   def save_image(image, filename) do
-  	File.write("#{filename}.png", image)
+    File.write("#{filename}.png", image)
   end
 end
